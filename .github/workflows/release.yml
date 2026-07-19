@@ -5,20 +5,23 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write
+
 jobs:
-  zip:
+  release:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Zip dist
         run: |
           cd dist
           zip -r ../ThreadsTracker.zip .
 
-      - name: Upload Release Asset
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: ThreadsTracker.zip
+          generate_release_notes: true
