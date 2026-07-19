@@ -1,6 +1,6 @@
 # Threads Tracker Extension
 
-Chrome Extension sederhana untuk membantu melihat akun **Threads yang belum melakukan follow back (Non Mutual)** secara langsung di halaman Threads.
+Chrome Extension untuk membantu melihat akun **Threads yang belum melakukan follow back (Non Mutual)** secara langsung di halaman Threads.
 
 Extension akan muncul otomatis saat Anda membuka Threads dan menampilkan daftar akun yang Anda follow tetapi belum mengikuti Anda kembali.
 
@@ -12,117 +12,118 @@ Extension akan muncul otomatis saat Anda membuka Threads dan menampilkan daftar 
 - Tidak perlu membuka popup atau menu extension.
 - Berjalan langsung di halaman Threads.
 - Menggunakan sesi login Threads yang sudah ada.
-- Mudah dipasang tanpa konfigurasi tambahan.
+- Mendukung browser desktop dan Android (Quetta Browser).
 
 ---
 
-# Instalasi
+# Instalasi (Desktop)
 
 ## 1. Download Extension
 
-Download project dari GitHub:
+Buka halaman **Releases** dan download file ZIP terbaru:
 
-**Repository:**
+https://github.com/dhohirpradana/threads-tracker/releases
 
-```text
-https://github.com/dhohirpradana/threads-tracker
-```
-
-Atau menggunakan Git:
-
-```bash
-git clone https://github.com/dhohirpradana/threads-tracker.git
-```
-
-Jika mengunduh ZIP, ekstrak terlebih dahulu hingga menjadi sebuah folder.
-
----
-
-## 2. Buka Halaman Extension Chrome
-
-Buka Chrome lalu masuk ke:
-
-```
-chrome://extensions/
-```
-
-Atau melalui:
-
-**⋮ → Extensions → Manage Extensions**
-
----
-
-## 3. Aktifkan Developer Mode
-
-Di pojok kanan atas, aktifkan **Developer mode**.
-
----
-
-## 4. Install Extension
-
-Klik **Load unpacked**.
-
-Kemudian pilih folder:
+Ekstrak file ZIP hingga muncul folder:
 
 ```
 dist/
 ```
 
-Contoh struktur project:
-
-```
-threads-tracker/
-├── src/
-├── dist/
-│   ├── manifest.json
-│   ├── content.js
-│   ├── inject.js
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-├── build.js
-└── package.json
-```
-
-Pastikan yang dipilih adalah folder **dist**
-Jika berhasil, extension akan muncul pada daftar Extensions.
-
 ---
 
-# Cara Menggunakan
+## 2. Buka Halaman Extension Chrome
 
-1. Login ke akun Threads Anda.
-
-2. Buka halaman:
-
-```
-https://www.threads.com
-```
-
-3. Tidak perlu melakukan apa pun.
-
-Extension akan otomatis berjalan dan menampilkan panel **Threads Tracker** di halaman Threads.
-
-4. Tunggu beberapa saat hingga proses selesai.
-
-Extension akan mengambil data Following dan Followers, kemudian hanya menampilkan akun yang **belum mengikuti Anda kembali (Non Mutual)**.
-
----
-
-# Update Extension
-
-Jika terdapat pembaruan di GitHub:
-
-1. Pull repository atau download versi terbaru.
-2. Buka:
+Buka:
 
 ```
 chrome://extensions/
 ```
 
-3. Klik tombol **Reload** pada extension **Threads Tracker**.
+Lalu aktifkan **Developer mode**.
 
-Selesai.
+---
+
+## 3. Install Extension
+
+Klik **Load unpacked**.
+
+Pilih folder:
+
+```
+dist/
+```
+
+Jika berhasil, Threads Tracker akan muncul pada daftar Extensions.
+
+---
+
+# Instalasi (Android)
+
+Extension juga dapat digunakan melalui **Quetta Browser**.
+
+https://play.google.com/store/apps/details?id=net.quetta.browser&hl=id
+
+## 1. Install Quetta Browser
+
+Download dan install **Quetta Browser** dari Google Play Store.
+
+---
+
+## 2. Login ke Threads
+
+Buka Quetta Browser, kemudian login ke akun Threads Anda.
+
+---
+
+## 3. Download Extension
+
+Download file ZIP terbaru dari halaman Releases:
+
+https://github.com/dhohirpradana/threads-tracker/releases
+
+---
+
+## 4. Load Extension
+
+Masuk ke menu **Extensions** di Quetta Browser, lalu pilih **Load Extension** (atau **Load Unpacked**, tergantung versi).
+
+Pilih folder hasil ekstrak ZIP (`dist`).
+
+---
+
+## 5. Refresh Threads
+
+Buka atau refresh halaman Threads.
+
+Extension akan berjalan otomatis dan menampilkan daftar akun yang **belum mengikuti Anda kembali (Non Mutual)**.
+
+---
+
+# Cara Menggunakan
+
+1. Login ke akun Threads.
+2. Buka:
+
+```
+https://www.threads.com
+```
+
+3. Refresh halaman jika extension baru saja dipasang.
+
+4. Tunggu beberapa saat hingga proses selesai.
+
+Extension akan membaca data Following dan Followers, kemudian hanya menampilkan akun yang belum mengikuti Anda kembali.
+
+---
+
+# Update Extension
+
+Jika terdapat versi terbaru:
+
+1. Download ZIP terbaru dari halaman Releases.
+2. Ganti folder extension yang lama.
+3. Reload extension pada browser.
 
 ---
 
@@ -132,15 +133,13 @@ Selesai.
 
 - Pastikan extension sudah aktif.
 - Refresh halaman Threads.
-- Pastikan Anda sudah login ke Threads.
+- Pastikan sudah login ke Threads.
 
 ---
 
 ### Data belum muncul
 
 Proses membutuhkan waktu beberapa saat, terutama jika jumlah Following cukup banyak.
-
-Silakan tunggu hingga proses selesai.
 
 ---
 
@@ -150,7 +149,7 @@ Kemungkinan disebabkan oleh:
 
 - Koneksi internet tidak stabil.
 - Threads belum selesai memuat seluruh daftar akun.
-- Halaman ditutup atau di-refresh sebelum proses selesai.
+- Halaman ditutup sebelum proses selesai.
 
 ---
 
@@ -165,12 +164,16 @@ Extension ini:
 
 ---
 
-# Repository
+# Download
 
-GitHub:
+Releases:
 
-**https://github.com/dhohirpradana/threads-tracker**
+https://github.com/dhohirpradana/threads-tracker/releases
+
+Repository:
+
+https://github.com/dhohirpradana/threads-tracker
 
 ---
 
-Semoga extension ini dapat membantu Anda mengelola daftar Following dengan lebih mudah.
+Semoga extension ini membantu Anda mengelola daftar Following dengan lebih mudah.
