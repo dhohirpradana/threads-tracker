@@ -90,6 +90,12 @@ Masuk ke menu **Extensions** di Quetta Browser, lalu pilih **Load Extension** (a
 
 Pilih folder hasil ekstrak ZIP (`dist`).
 
+### Tampilan Quetta Browser
+
+<p align="center">
+  <img src="screenshots/android-quetta.png" alt="Quetta Browser Extension" width="350">
+</p>
+
 ---
 
 ## 5. Refresh Threads
