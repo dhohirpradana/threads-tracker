@@ -1,17 +1,24 @@
 (() => {
-    // Constants untuk konfigurasi
+    // Constants untuk konfigurasi - disesuaikan agar lebih natural dan anti-spam
     const CONFIG = {
-        SCROLL_DELAY_MIN: 5000,
-        SCROLL_DELAY_MAX: 7000,
+        SCROLL_DELAY_MIN: 8000,        // 8 detik (lebih natural)
+        SCROLL_DELAY_MAX: 15000,       // 15 detik (variasi lebih besar)
         MODAL_CHECK_INTERVAL: 1000,
-        SCROLL_AMOUNT: 1000
+        SCROLL_AMOUNT_MIN: 300,        // Scroll lebih kecil dan bertahap
+        SCROLL_AMOUNT_MAX: 600,        // Random scroll amount
+        IDLE_THRESHOLD: 3,             // Berapa kali tidak ada data baru sebelum stop
+        DATA_CHECK_INTERVAL: 2000      // Interval cek data baru
     };
 
-    // State management
+    // State management - dengan tracking untuk data completion
     const state = {
         users: new Map(),
         isAutoScrolling: false,
-        scrollTimeout: null
+        scrollTimeout: null,
+        lastUserCount: 0,
+        noNewDataCount: 0,
+        lastScrollPosition: 0,
+        isStuck: false
     };
 
     // Cache DOM elements
@@ -57,6 +64,15 @@
                 div.style[key] = value;
             });
             return div;
+        },
+
+        // Random number generator untuk natural behavior
+        getRandomDelay: (min, max) => {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        },
+
+        getRandomScrollAmount: () => {
+            return utils.getRandomDelay(CONFIG.SCROLL_AMOUNT_MIN, CONFIG.SCROLL_AMOUNT_MAX);
         }
     };
 
@@ -80,7 +96,25 @@
 
         getTotalCount: () => state.users.size,
 
-        getUnfollowersCount: () => dataManager.getUnfollowers().length
+        getUnfollowersCount: () => dataManager.getUnfollowers().length,
+
+        // Check if new data arrived
+        hasNewData: () => {
+            const currentCount = state.users.size;
+            const hasNew = currentCount > state.lastUserCount;
+            if (hasNew) {
+                state.lastUserCount = currentCount;
+                state.noNewDataCount = 0;
+            } else {
+                state.noNewDataCount++;
+            }
+            return hasNew;
+        },
+
+        // Check if we should continue scrolling
+        shouldContinueScrolling: () => {
+            return state.noNewDataCount < CONFIG.IDLE_THRESHOLD;
+        }
     };
 
     // UI Update functions
@@ -90,7 +124,10 @@
             if (statusDiv) {
                 const total = dataManager.getTotalCount();
                 const unfollowers = dataManager.getUnfollowersCount();
-                statusDiv.innerHTML = `Total Di-scan: <b>${total}</b><br>Belum Follback: <b>${unfollowers}</b>`;
+                const status = state.isAutoScrolling ? 
+                    `<span style="color: #4ade80;">● Scanning...</span>` : 
+                    `<span style="color: #94a3b8;">○ Stopped</span>`;
+                statusDiv.innerHTML = `${status}<br>Total: <b>${total}</b> | Unfollowers: <b>${unfollowers}</b>`;
             }
         },
 
@@ -109,7 +146,7 @@
                 utils.setButtonState(utils.getElement('btn-download-txt'), false, '0.4', 'not-allowed');
             } else {
                 if (btnScroll) {
-                    btnScroll.innerText = '⏬ Mulai Sekarang';
+                    btnScroll.innerText = '⏬ Mulai Scan';
                     btnScroll.style.background = '#fff';
                     btnScroll.style.color = '#000';
                 }
@@ -117,6 +154,8 @@
                 utils.setButtonState(utils.getElement('btn-show-list'), true);
                 utils.setButtonState(utils.getElement('btn-download-txt'), true);
             }
+            
+            uiManager.updateStats();
         },
 
         showModal: () => {
@@ -178,7 +217,7 @@
         }
     };
 
-    // Scroll management
+    // Scroll management - IMPROVED untuk anti-spam dan data completion
     const scrollManager = {
         findScrollableElement: () => {
             const scrollableDivs = Array.from(document.querySelectorAll('div')).filter(div => {
@@ -189,19 +228,62 @@
             return scrollableDivs.length > 0 ? scrollableDivs[scrollableDivs.length - 1] : null;
         },
 
+        // Check if scroll is stuck
+        isScrollStuck: (target) => {
+            const currentPos = target ? target.scrollTop : window.scrollY;
+            const isStuck = currentPos === state.lastScrollPosition;
+            state.lastScrollPosition = currentPos;
+            return isStuck;
+        },
+
+        // Smooth scroll dengan amount yang lebih kecil dan random
         performScroll: () => {
             if (!state.isAutoScrolling) return;
 
             const target = scrollManager.findScrollableElement();
+            const scrollAmount = utils.getRandomScrollAmount();
+
             if (target) {
-                target.scrollTop = target.scrollHeight;
+                // Smooth scroll increment, bukan langsung ke bottom
+                target.scrollBy({
+                    top: scrollAmount,
+                    behavior: 'smooth'
+                });
+
+                // Check if reached bottom
+                const isAtBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 100;
+                if (isAtBottom) {
+                    console.log('📍 Reached bottom of scroll area');
+                    state.isStuck = true;
+                }
             } else {
-                window.scrollBy(0, CONFIG.SCROLL_AMOUNT);
+                window.scrollBy({
+                    top: scrollAmount,
+                    behavior: 'smooth'
+                });
             }
 
-            const randomDelay = Math.floor(
-                Math.random() * (CONFIG.SCROLL_DELAY_MAX - CONFIG.SCROLL_DELAY_MIN + 1)
-            ) + CONFIG.SCROLL_DELAY_MIN;
+            // Check for new data periodically
+            setTimeout(() => {
+                const hasNew = dataManager.hasNewData();
+                if (!hasNew) {
+                    console.log(`⚠️ No new data (${state.noNewDataCount}/${CONFIG.IDLE_THRESHOLD})`);
+                }
+
+                // Auto stop if no new data after threshold
+                if (!dataManager.shouldContinueScrolling() || state.isStuck) {
+                    console.log('✅ Scan completed - no more new data or reached end');
+                    actions.toggleAutoScroll();
+                    alert(`Scan selesai!\n\nTotal: ${dataManager.getTotalCount()}\nUnfollowers: ${dataManager.getUnfollowersCount()}`);
+                    return;
+                }
+
+                uiManager.updateStats();
+            }, CONFIG.DATA_CHECK_INTERVAL);
+
+            // Random delay untuk natural behavior (8-15 detik)
+            const randomDelay = utils.getRandomDelay(CONFIG.SCROLL_DELAY_MIN, CONFIG.SCROLL_DELAY_MAX);
+            console.log(`⏰ Next scroll in ${(randomDelay/1000).toFixed(1)}s`);
             
             state.scrollTimeout = setTimeout(scrollManager.performScroll, randomDelay);
         },
@@ -211,6 +293,8 @@
                 clearTimeout(state.scrollTimeout);
                 state.scrollTimeout = null;
             }
+            state.isStuck = false;
+            state.noNewDataCount = 0;
         }
     };
 
@@ -221,8 +305,14 @@
             uiManager.toggleScrollButton(state.isAutoScrolling);
 
             if (state.isAutoScrolling) {
+                // Reset counters
+                state.lastUserCount = state.users.size;
+                state.noNewDataCount = 0;
+                state.isStuck = false;
+                console.log('🚀 Starting scan...');
                 scrollManager.performScroll();
             } else {
+                console.log('⏹ Scan stopped manually');
                 scrollManager.stop();
             }
         },
@@ -282,18 +372,27 @@
                     const json = JSON.parse(this.responseText);
                     const edges = json?.data?.fetch__XDTUserDict?.following?.edges;
 
-                    if (!edges) return;
+                    if (!edges || edges.length === 0) return;
 
+                    let newUsersCount = 0;
                     edges.forEach(edge => {
                         const node = edge?.node;
                         if (!node?.username) return;
 
-                        dataManager.addUser(
-                            node.username,
-                            node.friendship_status?.followed_by ?? false,
-                            node.friendship_status?.following ?? false
-                        );
+                        const username = node.username;
+                        if (!state.users.has(username)) {
+                            newUsersCount++;
+                            dataManager.addUser(
+                                username,
+                                node.friendship_status?.followed_by ?? false,
+                                node.friendship_status?.following ?? false
+                            );
+                        }
                     });
+
+                    if (newUsersCount > 0) {
+                        console.log(`✨ Found ${newUsersCount} new users`);
+                    }
 
                     uiManager.updateStats();
                 } catch (e) {
@@ -322,7 +421,7 @@
                 utils.setButtonState(btnScroll, false, '0.4', 'not-allowed');
             } else {
                 if (!state.isAutoScrolling) {
-                    btnScroll.innerText = '⏬ Mulai Sekarang';
+                    btnScroll.innerText = '⏬ Mulai Scan';
                     utils.setButtonState(btnScroll, true);
                 }
             }
@@ -360,7 +459,7 @@
             fontFamily: 'system-ui, -apple-system, sans-serif',
             boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)',
             border: '1px solid #333',
-            width: '200px'
+            width: '220px'
         });
         container.id = 'threads-tracker-container';
 
@@ -370,16 +469,17 @@
             marginBottom: '10px',
             textAlign: 'center'
         });
-        title.innerText = '🧵 Tracker Aman';
+        title.innerText = '🧵 Tracker v1.0.5';
 
         // Status
         const status = utils.createDiv({
-            fontSize: '12px',
+            fontSize: '11px',
             marginBottom: '12px',
-            color: '#aaa'
+            color: '#aaa',
+            lineHeight: '1.5'
         });
         status.id = 'threads-tracker-status';
-        status.innerHTML = `Total Di-scan: <b>0</b><br>Belum Follback: <b>0</b>`;
+        status.innerHTML = `<span style="color: #94a3b8;">○ Stopped</span><br>Total: <b>0</b> | Unfollowers: <b>0</b>`;
 
         // Buttons
         const btnScroll = utils.createButton({
@@ -396,14 +496,15 @@
                 borderRadius: '6px',
                 fontWeight: 'bold',
                 opacity: '0.4',
-                cursor: 'not-allowed'
+                cursor: 'not-allowed',
+                fontSize: '13px'
             }
         });
         btnScroll.disabled = true;
 
         const btnList = utils.createButton({
             id: 'btn-show-list',
-            text: '📋 Lihat Daftar (Aman)',
+            text: '📋 Lihat Daftar',
             onclick: actions.showUnfollowersList,
             styles: {
                 width: '100%',
@@ -415,13 +516,14 @@
                 borderRadius: '6px',
                 cursor: 'pointer',
                 fontWeight: 'bold',
-                transition: '0.3s'
+                transition: '0.3s',
+                fontSize: '13px'
             }
         });
 
         const btnDownload = utils.createButton({
             id: 'btn-download-txt',
-            text: '💾 Download (.txt)',
+            text: '💾 Download .txt',
             onclick: actions.exportToTxt,
             styles: {
                 width: '100%',
@@ -432,7 +534,8 @@
                 borderRadius: '6px',
                 cursor: 'pointer',
                 fontWeight: 'bold',
-                transition: '0.3s'
+                transition: '0.3s',
+                fontSize: '13px'
             }
         });
 
@@ -521,5 +624,5 @@
         document.addEventListener('DOMContentLoaded', createUI);
     }
 
-    console.log("✅ Threads Tracker (Optimized) siap digunakan.");
+    console.log("✅ Threads Tracker v1.0.5 (Anti-Spam + Complete Data Capture) ready!");
 })();
