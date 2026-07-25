@@ -4,15 +4,42 @@ Chrome Extension untuk membantu melihat akun **Threads yang belum melakukan foll
 
 Extension akan muncul otomatis saat Anda membuka Threads dan menampilkan daftar akun yang Anda follow tetapi belum mengikuti Anda kembali.
 
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/dhohirpradana/threads-tracker/releases)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 ---
 
 ## ✨ Fitur
 
-- Menampilkan daftar akun **Non Mutual** secara otomatis.
-- Tidak perlu membuka popup atau menu extension.
-- Berjalan langsung di halaman Threads.
-- Menggunakan sesi login Threads yang sudah ada.
-- Mendukung browser desktop dan Android (Quetta Browser).
+- ✅ Menampilkan daftar akun **Non Mutual** secara otomatis
+- ✅ Tidak perlu membuka popup atau menu extension
+- ✅ Berjalan langsung di halaman Threads
+- ✅ Menggunakan sesi login Threads yang sudah ada
+- ✅ Mendukung browser desktop dan Android (Quetta Browser)
+- ✅ **Export daftar ke file .txt**
+- ✅ **Auto-scroll dengan delay random (5-7 detik)**
+- ✅ **UI yang clean dan user-friendly**
+- ✅ **Optimasi performa dengan DOM caching**
+- ✅ **Memory management yang baik**
+
+---
+
+## 🚀 Quick Start
+
+### Option 1: Download Release (Recommended)
+Download file ZIP terbaru dari [Releases](https://github.com/dhohirpradana/threads-tracker/releases), ekstrak, dan load ke browser.
+
+### Option 2: Build dari Source
+```bash
+# Clone repository
+git clone https://github.com/dhohirpradana/threads-tracker.git
+cd threads-tracker
+
+# Build extension
+npm run build
+
+# Hasilnya ada di folder dist/
+```
 
 ---
 
@@ -106,6 +133,39 @@ Extension akan berjalan otomatis dan menampilkan daftar akun yang **belum mengik
 
 ---
 
+## 🛠️ Development
+
+### Prerequisites
+- Node.js (untuk build script)
+- Git
+
+### Build Commands
+```bash
+# Build extension
+npm run build
+
+# Build dan create ZIP
+npm run zip
+```
+
+### Project Structure
+```
+non-mutual/
+├── src/                    # Source files
+│   ├── manifest.json       # Extension manifest
+│   ├── content.js          # Content script loader
+│   ├── inject.js           # Main logic (optimized)
+│   └── icon*.png          # Icons
+├── dist/                   # Build output (generated)
+├── build.js               # Build script
+├── package.json           # NPM configuration
+├── CHANGELOG.md           # Version history
+├── OPTIMIZATION.md        # Optimization details
+└── README.md              # This file
+```
+
+---
+
 # Cara Menggunakan
 
 1. Login ke akun Threads.
@@ -159,6 +219,30 @@ Kemungkinan disebabkan oleh:
 
 ---
 
+## 📈 Performance
+
+Extension ini telah dioptimasi dengan:
+- **DOM Caching** - Mengurangi DOM queries hingga 60-70%
+- **DocumentFragment** - Rendering list 50-70% lebih cepat
+- **Memory Management** - Cleanup yang proper
+- **Modular Architecture** - Code yang maintainable
+
+Lihat detail lengkap di [OPTIMIZATION.md](OPTIMIZATION.md)
+
+---
+
+## 🔄 Update Log
+
+### Version 1.1.0 (Latest)
+- ✨ Refactor kode dengan arsitektur modular
+- 🚀 Optimasi performa signifikan
+- 📦 Build automation dengan NPM scripts
+- 📝 Dokumentasi lengkap
+
+Lihat [CHANGELOG.md](CHANGELOG.md) untuk history lengkap.
+
+---
+
 # Keamanan
 
 Extension ini:
@@ -170,16 +254,35 @@ Extension ini:
 
 ---
 
-# Download
+## 🤝 Contributing
 
-Releases:
-
-https://github.com/dhohirpradana/threads-tracker/releases
-
-Repository:
-
-https://github.com/dhohirpradana/threads-tracker
+Contributions are welcome! Silakan:
+1. Fork repository ini
+2. Buat branch fitur baru (`git checkout -b feature/AmazingFeature`)
+3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
+4. Push ke branch (`git push origin feature/AmazingFeature`)
+5. Buka Pull Request
 
 ---
 
-Semoga extension ini membantu Anda mengelola daftar Following dengan lebih mudah.
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+## 📞 Contact & Support
+
+- **Issues:** [GitHub Issues](https://github.com/dhohirpradana/threads-tracker/issues)
+- **Repository:** [GitHub Repo](https://github.com/dhohirpradana/threads-tracker)
+- **Releases:** [Download Latest](https://github.com/dhohirpradana/threads-tracker/releases)
+
+---
+
+## ⭐ Show Your Support
+
+Jika extension ini membantu Anda, jangan lupa kasih ⭐ di GitHub!
+
+---
+
+**Made with ❤️ by [dhohirpradana](https://github.com/dhohirpradana)**

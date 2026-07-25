@@ -1,0 +1,21 @@
+{
+  "name": "threads-unfollowers-tracker",
+  "version": "1.1.0",
+  "description": "Extension untuk tracking unfollowers di Threads",
+  "scripts": {
+    "build": "node build.js",
+    "zip": "node build.js && cd dist && powershell Compress-Archive -Path * -DestinationPath ../ThreadsTool.zip -Force"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dhohirpradana/threads-tracker.git"
+  },
+  "keywords": [
+    "threads",
+    "unfollowers",
+    "tracker",
+    "chrome-extension"
+  ],
+  "author": "dhohirpradana",
+  "license": "MIT"
+}
