@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.0] - 2026-07-25
+## [1.0.5] - 2026-07-25
 
 ### 🚀 Improved
 - **Refactor kode inject.js** dengan arsitektur modular yang lebih baik
