@@ -4,7 +4,7 @@ Chrome Extension untuk membantu melihat akun **Threads yang belum melakukan foll
 
 Extension akan muncul otomatis saat Anda membuka Threads dan menampilkan daftar akun yang Anda follow tetapi belum mengikuti Anda kembali.
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/dhohirpradana/threads-tracker/releases)
+[![Version](https://img.shields.io/badge/version-1.0.5-blue.svg)](https://github.com/dhohirpradana/threads-tracker/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ---
