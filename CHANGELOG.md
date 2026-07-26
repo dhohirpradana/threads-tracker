@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.7] - 2026-07-26
+
+### 🐛 Fixed
+- **Premature stop issue** - Completely redesigned stop logic from count-based to time-based
+- **Stop condition** - Sekarang stop HANYA jika tidak ada data baru selama **1 menit penuh**
+
+### ✨ Enhanced
+- **Time-based timeout** - Changed from IDLE_THRESHOLD (5 counts) to NO_DATA_TIMEOUT (60 seconds)
+- **Automatic timer reset** - Timer reset setiap kali ada data baru
+- **Better logging** - Console menampilkan countdown waktu tanpa data baru
+- **Reliable completion** - Memastikan semua data terambil sebelum stop
+
+### 📊 Improvements
+- More patient scanning - Memberikan cukup waktu untuk data loading
+- Accurate data capture - Tidak akan miss data karena stop terlalu cepat
+- Transparent progress - User dapat monitor berapa lama tidak ada data via console
+
 ## [1.0.6] - 2026-07-26
 
 ### 🐛 Fixed

@@ -1,6 +1,6 @@
 {
   "name": "threads-unfollowers-tracker",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Extension untuk tracking unfollowers di Threads",
   "scripts": {
     "build": "node build.js",

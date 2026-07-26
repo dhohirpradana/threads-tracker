@@ -6,7 +6,7 @@
         MODAL_CHECK_INTERVAL: 1000,
         SCROLL_AMOUNT_MIN: 300,        // Scroll lebih kecil dan bertahap
         SCROLL_AMOUNT_MAX: 600,        // Random scroll amount
-        IDLE_THRESHOLD: 5              // Berapa kali tidak ada data baru sebelum stop (increased from 3)
+        NO_DATA_TIMEOUT: 60000         // 1 menit = 60000ms - stop jika tidak ada data baru dalam 1 menit
     };
 
     // State management - dengan tracking untuk data completion
@@ -15,9 +15,8 @@
         isAutoScrolling: false,
         scrollTimeout: null,
         lastUserCount: 0,
-        noNewDataCount: 0,
-        lastScrollPosition: 0,
-        isStuck: false
+        lastDataTimestamp: Date.now(),
+        lastScrollPosition: 0
     };
 
     // Cache DOM elements
@@ -103,16 +102,20 @@
             const hasNew = currentCount > state.lastUserCount;
             if (hasNew) {
                 state.lastUserCount = currentCount;
-                state.noNewDataCount = 0;
-            } else {
-                state.noNewDataCount++;
+                state.lastDataTimestamp = Date.now(); // Update timestamp saat ada data baru
             }
             return hasNew;
         },
 
-        // Check if we should continue scrolling
+        // Check if we should continue scrolling based on time
         shouldContinueScrolling: () => {
-            return state.noNewDataCount < CONFIG.IDLE_THRESHOLD;
+            const timeSinceLastData = Date.now() - state.lastDataTimestamp;
+            return timeSinceLastData < CONFIG.NO_DATA_TIMEOUT;
+        },
+
+        // Get time since last data in seconds
+        getTimeSinceLastData: () => {
+            return Math.floor((Date.now() - state.lastDataTimestamp) / 1000);
         }
     };
 
@@ -239,19 +242,22 @@
         performScroll: () => {
             if (!state.isAutoScrolling) return;
 
-            // Check for new data BEFORE scrolling (not after)
+            // Check for new data
             const hasNew = dataManager.hasNewData();
-            if (!hasNew) {
-                console.log(`⚠️ No new data (${state.noNewDataCount}/${CONFIG.IDLE_THRESHOLD})`);
-            } else {
+            const timeSinceLastData = dataManager.getTimeSinceLastData();
+            
+            if (hasNew) {
                 console.log(`✨ Data updated: Total ${dataManager.getTotalCount()}, Unfollowers ${dataManager.getUnfollowersCount()}`);
+            } else {
+                console.log(`⚠️ No new data for ${timeSinceLastData}s (max ${CONFIG.NO_DATA_TIMEOUT/1000}s)`);
             }
 
-            // Check if should stop
+            // Check if should stop based on timeout (1 menit tanpa data baru)
             if (!dataManager.shouldContinueScrolling()) {
-                console.log('✅ Scan completed - no more new data detected');
+                const totalTime = Math.floor((Date.now() - state.startTime) / 1000);
+                console.log(`✅ Scan completed - no new data for 1 minute (Total scan time: ${totalTime}s)`);
                 actions.toggleAutoScroll();
-                alert(`Scan selesai!\n\nTotal: ${dataManager.getTotalCount()}\nUnfollowers: ${dataManager.getUnfollowersCount()}`);
+                alert(`Scan selesai!\n\nTotal: ${dataManager.getTotalCount()}\nUnfollowers: ${dataManager.getUnfollowersCount()}\n\nTidak ada data baru selama 1 menit.`);
                 return;
             }
 
@@ -259,20 +265,17 @@
             const scrollAmount = utils.getRandomScrollAmount();
 
             if (target) {
-                // Check if reached bottom BEFORE scrolling
-                const isAtBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 100;
-                if (isAtBottom && state.noNewDataCount >= 2) {
-                    console.log('✅ Reached bottom and no new data');
-                    actions.toggleAutoScroll();
-                    alert(`Scan selesai!\n\nTotal: ${dataManager.getTotalCount()}\nUnfollowers: ${dataManager.getUnfollowersCount()}`);
-                    return;
-                }
-
                 // Smooth scroll increment
                 target.scrollBy({
                     top: scrollAmount,
                     behavior: 'smooth'
                 });
+
+                // Check if at bottom
+                const isAtBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 100;
+                if (isAtBottom && timeSinceLastData > 30) {
+                    console.log('📍 Reached bottom and no new data for 30s');
+                }
             } else {
                 window.scrollBy({
                     top: scrollAmount,
@@ -305,11 +308,11 @@
             uiManager.toggleScrollButton(state.isAutoScrolling);
 
             if (state.isAutoScrolling) {
-                // Reset counters
+                // Reset state
                 state.lastUserCount = state.users.size;
-                state.noNewDataCount = 0;
-                state.isStuck = false;
-                console.log('🚀 Starting scan...');
+                state.lastDataTimestamp = Date.now();
+                state.startTime = Date.now();
+                console.log('🚀 Starting scan... (Will auto-stop if no new data for 1 minute)');
                 scrollManager.performScroll();
             } else {
                 console.log('⏹ Scan stopped manually');
@@ -472,7 +475,7 @@
             marginBottom: '10px',
             textAlign: 'center'
         });
-        title.innerText = '🧵 Tracker v1.0.6';
+        title.innerText = '🧵 Tracker v1.0.7';
 
         // Status
         const status = utils.createDiv({
@@ -627,5 +630,5 @@
         document.addEventListener('DOMContentLoaded', createUI);
     }
 
-    console.log("✅ Threads Tracker v1.0.6 (Anti-Spam + Complete Data Capture + Enhanced Logging) ready!");
+    console.log("✅ Threads Tracker v1.0.7 (Anti-Spam + 1 Minute Timeout) ready!");
 })();
