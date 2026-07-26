@@ -16,7 +16,8 @@
         scrollTimeout: null,
         lastUserCount: 0,
         lastDataTimestamp: Date.now(),
-        lastScrollPosition: 0
+        lastScrollPosition: 0,
+        tabWasHidden: false
     };
 
     // Cache DOM elements
@@ -308,11 +309,16 @@
             uiManager.toggleScrollButton(state.isAutoScrolling);
 
             if (state.isAutoScrolling) {
+                // Show warning/instruction
+                alert('⚠️ PENTING!\n\n📌 Tab Threads HARUS tetap aktif selama scanning\n📌 Jangan switch ke tab lain\n📌 Boleh minimize browser, tapi tab ini harus tetap terbuka\n\nScanning akan dimulai...');
+                
                 // Reset state
                 state.lastUserCount = state.users.size;
                 state.lastDataTimestamp = Date.now();
                 state.startTime = Date.now();
+                state.tabWasHidden = false;
                 console.log('🚀 Starting scan... (Will auto-stop if no new data for 1 minute)');
+                console.log('⚠️ KEEP THIS TAB ACTIVE - Do not switch to other tabs!');
                 scrollManager.performScroll();
             } else {
                 console.log('⏹ Scan stopped manually');
@@ -475,7 +481,7 @@
             marginBottom: '10px',
             textAlign: 'center'
         });
-        title.innerText = '🧵 Tracker v1.0.7';
+        title.innerText = '🧵 Tracker v1.0.8';
 
         // Status
         const status = utils.createDiv({
@@ -621,8 +627,23 @@
     window.exportBelumFollbackTxt = actions.exportToTxt;
     window.closeModal = actions.closeModal;
 
+    // Tab visibility detection
+    const setupVisibilityDetection = () => {
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && state.isAutoScrolling) {
+                console.warn('⚠️ WARNING: Tab is now hidden! Scanning may not work properly.');
+                console.warn('⚠️ Please return to this tab to continue scanning.');
+                state.tabWasHidden = true;
+            } else if (!document.hidden && state.tabWasHidden && state.isAutoScrolling) {
+                console.log('✅ Tab is active again. Resuming scan...');
+                state.tabWasHidden = false;
+            }
+        });
+    };
+
     // Initialize
     setupXHRInterceptor();
+    setupVisibilityDetection();
 
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
         createUI();
@@ -630,5 +651,6 @@
         document.addEventListener('DOMContentLoaded', createUI);
     }
 
-    console.log("✅ Threads Tracker v1.0.7 (Anti-Spam + 1 Minute Timeout) ready!");
+    console.log("✅ Threads Tracker v1.0.8 (Anti-Spam + Tab Active Warning) ready!");
+    console.log("⚠️ Important: Keep this tab active during scanning!");
 })();

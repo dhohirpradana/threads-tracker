@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.8] - 2026-07-26
+
+### ✨ Added
+- **Tab active warning** - Alert popup saat mulai scan dengan instruksi jelas
+- **Tab visibility detection** - Otomatis detect saat user switch ke tab lain
+- **Console warnings** - Real-time warning jika tab becomes hidden
+- **User instructions** - Clear expectations bahwa tab harus tetap aktif
+
+### 🔧 Enhanced
+- Better UX dengan transparent communication tentang browser limitations
+- Console logs untuk monitor tab visibility status
+- Warning message: "Tab HARUS tetap aktif selama scanning"
+
+### 📝 Documentation
+- Explained why extension can't run in background (browser limitations)
+- Clear instructions for users to keep tab active
+
 ## [1.0.7] - 2026-07-26
 
 ### 🐛 Fixed
