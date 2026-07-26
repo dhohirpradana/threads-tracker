@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.6] - 2026-07-26
+
+### 🐛 Fixed
+- **Auto-scroll premature stop** - Fixed timing logic untuk data checking
+- **Data capture accuracy** - Improved detection untuk memastikan semua data terambil
+
+### ✨ Enhanced
+- **Detailed logging** - Setiap GraphQL response sekarang di-log dengan detail (new, duplicate, total)
+- **IDLE_THRESHOLD** - Increased dari 3 ke 5 untuk lebih toleran terhadap network delays
+- **Data check timing** - Check dilakukan sebelum scroll (bukan setelah), giving more time untuk data loading
+
+### 📊 Debugging
+- Console log menampilkan breakdown lengkap setiap response
+- Tracking duplicate count untuk identify issues
+- Better visibility untuk troubleshooting "lompat" data
+
 ## [1.0.5] - 2026-07-25
 
 ### 🚀 Improved

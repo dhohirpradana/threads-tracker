@@ -6,8 +6,7 @@
         MODAL_CHECK_INTERVAL: 1000,
         SCROLL_AMOUNT_MIN: 300,        // Scroll lebih kecil dan bertahap
         SCROLL_AMOUNT_MAX: 600,        // Random scroll amount
-        IDLE_THRESHOLD: 3,             // Berapa kali tidak ada data baru sebelum stop
-        DATA_CHECK_INTERVAL: 2000      // Interval cek data baru
+        IDLE_THRESHOLD: 5              // Berapa kali tidak ada data baru sebelum stop (increased from 3)
     };
 
     // State management - dengan tracking untuk data completion
@@ -240,22 +239,40 @@
         performScroll: () => {
             if (!state.isAutoScrolling) return;
 
+            // Check for new data BEFORE scrolling (not after)
+            const hasNew = dataManager.hasNewData();
+            if (!hasNew) {
+                console.log(`⚠️ No new data (${state.noNewDataCount}/${CONFIG.IDLE_THRESHOLD})`);
+            } else {
+                console.log(`✨ Data updated: Total ${dataManager.getTotalCount()}, Unfollowers ${dataManager.getUnfollowersCount()}`);
+            }
+
+            // Check if should stop
+            if (!dataManager.shouldContinueScrolling()) {
+                console.log('✅ Scan completed - no more new data detected');
+                actions.toggleAutoScroll();
+                alert(`Scan selesai!\n\nTotal: ${dataManager.getTotalCount()}\nUnfollowers: ${dataManager.getUnfollowersCount()}`);
+                return;
+            }
+
             const target = scrollManager.findScrollableElement();
             const scrollAmount = utils.getRandomScrollAmount();
 
             if (target) {
-                // Smooth scroll increment, bukan langsung ke bottom
+                // Check if reached bottom BEFORE scrolling
+                const isAtBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 100;
+                if (isAtBottom && state.noNewDataCount >= 2) {
+                    console.log('✅ Reached bottom and no new data');
+                    actions.toggleAutoScroll();
+                    alert(`Scan selesai!\n\nTotal: ${dataManager.getTotalCount()}\nUnfollowers: ${dataManager.getUnfollowersCount()}`);
+                    return;
+                }
+
+                // Smooth scroll increment
                 target.scrollBy({
                     top: scrollAmount,
                     behavior: 'smooth'
                 });
-
-                // Check if reached bottom
-                const isAtBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 100;
-                if (isAtBottom) {
-                    console.log('📍 Reached bottom of scroll area');
-                    state.isStuck = true;
-                }
             } else {
                 window.scrollBy({
                     top: scrollAmount,
@@ -263,23 +280,8 @@
                 });
             }
 
-            // Check for new data periodically
-            setTimeout(() => {
-                const hasNew = dataManager.hasNewData();
-                if (!hasNew) {
-                    console.log(`⚠️ No new data (${state.noNewDataCount}/${CONFIG.IDLE_THRESHOLD})`);
-                }
-
-                // Auto stop if no new data after threshold
-                if (!dataManager.shouldContinueScrolling() || state.isStuck) {
-                    console.log('✅ Scan completed - no more new data or reached end');
-                    actions.toggleAutoScroll();
-                    alert(`Scan selesai!\n\nTotal: ${dataManager.getTotalCount()}\nUnfollowers: ${dataManager.getUnfollowersCount()}`);
-                    return;
-                }
-
-                uiManager.updateStats();
-            }, CONFIG.DATA_CHECK_INTERVAL);
+            // Update UI
+            uiManager.updateStats();
 
             // Random delay untuk natural behavior (8-15 detik)
             const randomDelay = utils.getRandomDelay(CONFIG.SCROLL_DELAY_MIN, CONFIG.SCROLL_DELAY_MAX);
@@ -293,8 +295,6 @@
                 clearTimeout(state.scrollTimeout);
                 state.scrollTimeout = null;
             }
-            state.isStuck = false;
-            state.noNewDataCount = 0;
         }
     };
 
@@ -375,6 +375,8 @@
                     if (!edges || edges.length === 0) return;
 
                     let newUsersCount = 0;
+                    let duplicateCount = 0;
+                    
                     edges.forEach(edge => {
                         const node = edge?.node;
                         if (!node?.username) return;
@@ -387,12 +389,13 @@
                                 node.friendship_status?.followed_by ?? false,
                                 node.friendship_status?.following ?? false
                             );
+                        } else {
+                            duplicateCount++;
                         }
                     });
 
-                    if (newUsersCount > 0) {
-                        console.log(`✨ Found ${newUsersCount} new users`);
-                    }
+                    // Always log responses for debugging
+                    console.log(`📦 GraphQL Response: ${edges.length} users (${newUsersCount} new, ${duplicateCount} duplicate) | Total: ${state.users.size}`);
 
                     uiManager.updateStats();
                 } catch (e) {
@@ -469,7 +472,7 @@
             marginBottom: '10px',
             textAlign: 'center'
         });
-        title.innerText = '🧵 Tracker v1.0.5';
+        title.innerText = '🧵 Tracker v1.0.6';
 
         // Status
         const status = utils.createDiv({
@@ -624,5 +627,5 @@
         document.addEventListener('DOMContentLoaded', createUI);
     }
 
-    console.log("✅ Threads Tracker v1.0.5 (Anti-Spam + Complete Data Capture) ready!");
+    console.log("✅ Threads Tracker v1.0.6 (Anti-Spam + Complete Data Capture + Enhanced Logging) ready!");
 })();
