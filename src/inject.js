@@ -1,11 +1,11 @@
 (() => {
     // Constants untuk konfigurasi - disesuaikan agar lebih natural dan anti-spam
     const CONFIG = {
-        SCROLL_DELAY_MIN: 8000,        // 8 detik (lebih natural)
-        SCROLL_DELAY_MAX: 15000,       // 15 detik (variasi lebih besar)
+        SCROLL_DELAY_MIN: 2000,        // 2 detik
+        SCROLL_DELAY_MAX: 4000,        // 4 detik
         MODAL_CHECK_INTERVAL: 1000,
-        SCROLL_AMOUNT_MIN: 300,        // Scroll lebih kecil dan bertahap
-        SCROLL_AMOUNT_MAX: 600,        // Random scroll amount
+        SCROLL_AMOUNT_MIN: 500,        // Scroll amount
+        SCROLL_AMOUNT_MAX: 900,        // Random scroll amount
         NO_DATA_TIMEOUT: 60000         // 1 menit = 60000ms - stop jika tidak ada data baru dalam 1 menit
     };
 
@@ -481,7 +481,7 @@
             marginBottom: '10px',
             textAlign: 'center'
         });
-        title.innerText = '🧵 Tracker v1.0.8';
+        title.innerText = '🧵 Tracker v1.0.9';
 
         // Status
         const status = utils.createDiv({
@@ -651,6 +651,6 @@
         document.addEventListener('DOMContentLoaded', createUI);
     }
 
-    console.log("✅ Threads Tracker v1.0.8 (Anti-Spam + Tab Active Warning) ready!");
+    console.log("✅ Threads Tracker v1.0.9 (Anti-Spam + Tab Active Warning) ready!");
     console.log("⚠️ Important: Keep this tab active during scanning!");
 })();
